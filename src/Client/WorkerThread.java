@@ -1,4 +1,4 @@
-package CSC375HW3;
+package Client;
 
 import java.util.concurrent.Phaser;
 import java.util.concurrent.RecursiveAction;

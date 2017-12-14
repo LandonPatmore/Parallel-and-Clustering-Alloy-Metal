@@ -1,4 +1,4 @@
-package CSC375HW3;
+package Client;
 
 public class Main {
 

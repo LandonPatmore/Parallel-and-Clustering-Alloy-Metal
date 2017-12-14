@@ -1,4 +1,4 @@
-package CSC375HW3;
+package Client;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
