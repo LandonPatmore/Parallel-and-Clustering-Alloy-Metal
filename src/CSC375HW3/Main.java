@@ -3,16 +3,22 @@ package CSC375HW3;
 public class Main {
 
     public static void main(String[] args) throws InterruptedException {
-        Runner r = new Runner(500, 200, 500000000000000.0, 500000000000000.0);
-        r.run();
+        if(args.length > 0){
+            int iterations = Integer.parseInt(args[0]);
+            int height = Integer.parseInt(args[1]);
+            double heatTop = Double.parseDouble(args[2]);
+            double heatBottom = Double.parseDouble(args[3]);         
 
-        r.stopPool();
+            Runner r = new Runner(iterations, height, heatTop, heatBottom);
+            r.run();
 
-        r.buildImage();
+            r.stopPool();
 
-        System.out.println("Done.");
+            r.buildImage();
 
+            System.out.println("Done.");
 
+        }
     }
 
 }
