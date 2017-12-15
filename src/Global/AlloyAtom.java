@@ -1,31 +1,32 @@
-package Client;
+package Global;
 
 
 import java.awt.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class AlloyAtom {
+public class AlloyAtom implements Serializable{
     private volatile double[] metals;
     private volatile double currentTemp;
     private int x, y;
     private ArrayList<AlloyAtom> neighbors;
 
-    AlloyAtom(int x, int y) {
+    public AlloyAtom(int x, int y) {
         this.metals = setMetalPercentages();
         this.currentTemp = 0.0;
         this.x = x;
         this.y = y;
     }
 
-    AlloyAtom(int x, int y, double[] metals) {
+    public AlloyAtom(int x, int y, double[] metals) {
         this.metals = metals;
         this.currentTemp = 0.0;
         this.x = x;
         this.y = y;
     }
 
-    double getCurrentTemp() {
+    public double getCurrentTemp() {
         return currentTemp;
     }
 
@@ -59,7 +60,7 @@ public class AlloyAtom {
         return neighbors;
     }
 
-    double[] getMetals() {
+    public double[] getMetals() {
         return metals;
     }
 
@@ -71,7 +72,7 @@ public class AlloyAtom {
         return y;
     }
 
-    void setTemp(double temp) {
+    public void setTemp(double temp) {
         currentTemp = temp;
     }
 

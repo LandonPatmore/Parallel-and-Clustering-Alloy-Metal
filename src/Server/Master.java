@@ -1,10 +1,12 @@
-package Client;
+package Server;
+
+import Global.AlloyAtom;
 
 import java.util.concurrent.Phaser;
 
 public class Master {
     private static AlloyAtom[][] blockA;
-    private static AlloyAtom[][] bloockB;
+    private static AlloyAtom[][] blockB;
     private static Phaser phaser = new Phaser();
     private static double heatTop;
     private static double heatBottom;
@@ -15,7 +17,7 @@ public class Master {
 
     public static void setBlocks(AlloyAtom[][] a, AlloyAtom[][] b) {
         Master.blockA = a;
-        Master.bloockB = b;
+        Master.blockB = b;
     }
 
     public static void setParams(int iterations, double heatTop, double heatBottom) {
@@ -44,8 +46,8 @@ public class Master {
         return blockA;
     }
 
-    public static AlloyAtom[][] getBloockB() {
-        return bloockB;
+    public static AlloyAtom[][] getBlockB() {
+        return blockB;
     }
 
 }

@@ -1,11 +1,14 @@
 package Client;
 
+import Global.AlloyAtom;
+import Server.Master;
+
 import java.util.concurrent.Phaser;
 import java.util.concurrent.RecursiveAction;
 
 public class WorkerThread extends RecursiveAction {
     private volatile AlloyAtom[][] blockA = Master.getBlockA();
-    private volatile AlloyAtom[][] blockB = Master.getBloockB();
+    private volatile AlloyAtom[][] blockB = Master.getBlockB();
     private final double[] CONSTANTS = new double[]{0.75, 1.0, 1.25};
     private final Phaser phaser = Master.getPhaser();
     private final int iterations = Master.getIterations();

@@ -1,5 +1,8 @@
 package Client;
 
+import Global.AlloyAtom;
+import Server.Master;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
