@@ -18,7 +18,7 @@ public class Client {
 
             try {
                 AlloyAtom[][] chunk = (AlloyAtom[][]) input.readObject();
-                chunk[0][0].setTemp(5000000);
+                chunk[0][0].setTemp(5);
                 output.writeObject(chunk);
 
             } catch (ClassNotFoundException e) {

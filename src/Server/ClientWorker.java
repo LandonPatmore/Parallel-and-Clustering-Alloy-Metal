@@ -68,8 +68,10 @@ public class ClientWorker implements Runnable {
                 AlloyAtom a = blockA[i][j];
                 AlloyAtom b = blockB[i][j];
 
-                chunkA[x][y] = new AlloyAtom(a.getX(), a.getY(), a.getMetals());
-                chunkB[x][y] = new AlloyAtom(b.getX(), b.getY(), b.getMetals());
+                //chunkA[x][y] = new AlloyAtom(a.getX(), a.getY(), a.getMetals());
+                //chunkB[x][y] = new AlloyAtom(b.getX(), b.getY(), b.getMetals());
+                chunkA[x][y] = a;
+                chunkB[x][y] = b;
                 y++;
             }
             x++;
@@ -98,7 +100,12 @@ public class ClientWorker implements Runnable {
             x++;
         }
 
-        System.out.println(Arrays.deepToString(blockB));
+        for(int i = 0; i < blockB.length; i++){
+        	for(int j = 0; j < blockB[i].length; j++){
+        		System.out.print(blockB[i][j] + " ");
+        	}
+        	System.out.println();
+        }
     }
 
     private AlloyAtom[][] switchChunk() {

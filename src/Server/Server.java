@@ -24,7 +24,7 @@ public class Server {
 
     public void startServer() {
         System.out.println("Creating alloy blocks...");
-        height = 100;
+        height = 4;
         initParams(100, height, 100, 100);
         System.out.println("Blocks created...");
         System.out.println("Splitting into chunks...");
