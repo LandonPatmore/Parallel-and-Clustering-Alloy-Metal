@@ -5,8 +5,8 @@ import Global.AlloyAtom;
 import java.util.concurrent.Phaser;
 
 public class ServerMaster {
-    private static AlloyAtom[][] blockA;
-    private static AlloyAtom[][] blockB;
+    private volatile static AlloyAtom[][] blockA;
+    private volatile static AlloyAtom[][] blockB;
     private static Phaser phaser = new Phaser();
     private static int iterations;
 

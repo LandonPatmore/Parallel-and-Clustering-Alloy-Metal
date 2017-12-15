@@ -21,10 +21,7 @@ public class Client {
             output = new ObjectOutputStream(socket.getOutputStream());
             input = new ObjectInputStream(socket.getInputStream());
 
-            receiveDimensions();
-            setChunk();
-            invokePool();
-            sendChunk();
+            run();
 
             output.close();
             input.close();
@@ -34,9 +31,18 @@ public class Client {
         }
     }
 
+    private void run() {
+        receiveDimensions();
+        while (true) {
+            setChunk();
+            invokePool();
+            endPool();
+            createNewPool();
+            sendChunk();
+        }
+    }
 
-
-    private void receiveDimensions(){
+    private void receiveDimensions() {
         try {
             ClientMaster.setMasterHeight(input.read());
             ClientMaster.setMasterWidth(input.read());
@@ -50,21 +56,31 @@ public class Client {
             AlloyAtom[][] chunk = (AlloyAtom[][]) input.readObject();
             ClientMaster.setChunk(chunk);
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("Disonnected.");
+            System.exit(-1);
         }
     }
 
-    private void sendChunk(){
+    private void sendChunk() {
         try {
             output.writeObject(ClientMaster.getChunk());
+            output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    private void createNewPool(){
+        f = new ForkJoinPool();
+    }
+
     private void invokePool() {
         WorkerThread w = new WorkerThread();
         f.invoke(w);
+    }
+
+    private void endPool(){
+        f.shutdownNow();
     }
 
     private void openConnection() {

@@ -88,9 +88,10 @@ public class WorkerThread extends RecursiveAction {
     }
 
     private void transferFrom(AlloyAtom[][] chunk) {
+        AlloyAtom[][] toBeAdded = chunk;
         for (int i = 0; i < (END_HEIGHT - START_HEIGHT); i++) {
             for (int j = 0; j < (END_WIDTH - START_WIDTH); j++) {
-                ClientMaster.getChunk()[i][j].setTemp(chunk[i][j].getCurrentTemp());
+                ClientMaster.getChunk()[i][j].setTemp(toBeAdded[i][j].getCurrentTemp());
             }
         }
     }

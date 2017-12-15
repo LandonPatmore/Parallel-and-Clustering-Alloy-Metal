@@ -16,8 +16,8 @@ public class Server {
     private ServerSocket server;
     private int port;
     private final int height;
-    private AlloyAtom[][] blockA;
-    private AlloyAtom[][] blockB;
+    private volatile AlloyAtom[][] blockA;
+    private volatile AlloyAtom[][] blockB;
     private Area[] areas;
     private Phaser phaser;
 
@@ -25,8 +25,8 @@ public class Server {
         this.port = port;
         openServerSocket(port);
         height = 4;
-        phaser = new Phaser();
-        phaser.bulkRegister(4);
+        phaser = ServerMaster.getPhaser();
+        phaser.bulkRegister(1);
     }
 
     public void startServer() {
@@ -49,7 +49,7 @@ public class Server {
                 throw new RuntimeException(
                         "Error accepting client connection", e);
             }
-            new Thread(new ServerWorker(clientSocket, blockA, blockB, areas[i++], phaser)).start();
+            new Thread(new ServerWorker(clientSocket, areas[i++], phaser)).start();
         }
     }
 
@@ -119,5 +119,6 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("Image created.");
     }
 }

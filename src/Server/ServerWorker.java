@@ -10,12 +10,10 @@ import java.util.concurrent.Phaser;
 
 public class ServerWorker implements Runnable {
     private Socket socket;
-    private AlloyAtom[][] blockA;
-    private AlloyAtom[][] blockB;
-    private AlloyAtom[][] chunkA;
-    private AlloyAtom[][] chunkB;
-
-    private Area area;
+    private volatile AlloyAtom[][] blockA;
+    private volatile AlloyAtom[][] blockB;
+    private volatile AlloyAtom[][] chunkA;
+    private volatile AlloyAtom[][] chunkB;
 
     private int iteration;
     private final int startHeight;
@@ -28,11 +26,10 @@ public class ServerWorker implements Runnable {
 
     private Phaser phaser;
 
-    public ServerWorker(Socket socket, AlloyAtom[][] blockA, AlloyAtom[][] blockB, Area area, Phaser phaser) {
+    public ServerWorker(Socket socket, Area area, Phaser phaser) {
         this.socket = socket;
-        this.blockA = blockA;
-        this.blockB = blockB;
-        this.area = area;
+        this.blockA = ServerMaster.getBlockA();
+        this.blockB = ServerMaster.getBlockB();
         this.iteration = 0;
         this.startHeight = area.getStartHeight();
         this.endHeight = area.getEndHeight();
@@ -45,34 +42,46 @@ public class ServerWorker implements Runnable {
 
     @Override
     public void run() {
+        System.out.println(socket.getInetAddress().getHostName() + " has connected.");
         try {
             setStreams();
-            phaser.register();
             generateChunks();
-
             writeDimensions();
 
-            writeChunk();
-
-            chunkA = (AlloyAtom[][]) input.readObject();
-
-            transferToMainBlocks();
+            communicateWithClient();
 
             output.close();
             input.close();
-            System.out.println(socket.getInetAddress().getHostName() + " has connected.");
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void communicateWithClient() {
+        while (true) {
+            writeChunk();
+            phaser.arriveAndAwaitAdvance();
+            try {
+                AlloyAtom[][] toBeAdded = (AlloyAtom[][]) input.readObject();
+                transferToMainBlocks(toBeAdded);
+            } catch (IOException | ClassNotFoundException e) {
+                System.out.println("Client Disconnected.");
+                System.exit(-1);
+            }
+            iteration++;
         }
     }
 
     private void writeChunk() {
         try {
+            AlloyAtom[][] selected;
             if (iteration % 2 == 0) {
-                output.writeObject(chunkA);
+                selected = chunkA;
             } else {
-                output.writeObject(chunkB);
+                selected = chunkB;
             }
+            output.writeObject(selected);
+            output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -91,6 +100,7 @@ public class ServerWorker implements Runnable {
         try {
             output.write(blockA.length);
             output.write(blockB[0].length);
+            output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -112,33 +122,25 @@ public class ServerWorker implements Runnable {
         }
     }
 
-    private void transferToMainBlocks() {
-        AlloyAtom[][] workingOnChunk;
+    private void transferToMainBlocks(AlloyAtom[][] chunk) {
         AlloyAtom[][] transferTo;
 
         if (iteration % 2 == 0) {
-            workingOnChunk = chunkA;
             transferTo = blockB;
         } else {
-            workingOnChunk = chunkB;
-            transferTo = blockB;
+            transferTo = blockA;
         }
 
         int x = 0;
         for (int i = startHeight; i < endHeight; i++) {
             int y = 0;
             for (int j = startWidth; j < endWidth; j++) {
-                transferTo[i][j].setTemp(workingOnChunk[x][y].getCurrentTemp());
+                transferTo[i][j].setTemp(chunk[x][y].getCurrentTemp());
                 y++;
             }
             x++;
         }
 
-        for (int i = 0; i < blockB.length; i++) {
-            for (int j = 0; j < blockB[i].length; j++) {
-                System.out.print(blockB[i][j] + " ");
-            }
-            System.out.println();
-        }
+//        System.out.println("Chunk transferred to block...");
     }
 }
