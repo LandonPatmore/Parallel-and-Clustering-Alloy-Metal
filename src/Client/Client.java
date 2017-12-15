@@ -55,6 +55,13 @@ public class Client {
         try {
             AlloyAtom[][] chunk = (AlloyAtom[][]) input.readObject();
             ClientMaster.setChunk(chunk);
+            System.out.println("Printing Chunk Received from server...");
+            for (int i = 0; i < chunk.length; i++) {
+                for (int j = 0; j < chunk[0].length; j++) {
+                    System.out.print(chunk[i][j].getCurrentTemp() + " ");
+                }
+                System.out.println();
+            }
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("Disonnected.");
             System.exit(-1);
@@ -70,7 +77,7 @@ public class Client {
         }
     }
 
-    private void createNewPool(){
+    private void createNewPool() {
         f = new ForkJoinPool();
     }
 
@@ -79,7 +86,7 @@ public class Client {
         f.invoke(w);
     }
 
-    private void endPool(){
+    private void endPool() {
         f.shutdownNow();
     }
 

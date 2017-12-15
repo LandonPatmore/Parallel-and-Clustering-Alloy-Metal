@@ -15,7 +15,6 @@ public class ServerWorker implements Runnable {
     private volatile AlloyAtom[][] chunkA;
     private volatile AlloyAtom[][] chunkB;
 
-    private int iteration;
     private final int startHeight;
     private final int endHeight;
     private final int startWidth;
@@ -30,7 +29,6 @@ public class ServerWorker implements Runnable {
         this.socket = socket;
         this.blockA = ServerMaster.getBlockA();
         this.blockB = ServerMaster.getBlockB();
-        this.iteration = 0;
         this.startHeight = area.getStartHeight();
         this.endHeight = area.getEndHeight();
         this.startWidth = area.getStartWidth();
@@ -60,25 +58,38 @@ public class ServerWorker implements Runnable {
     private void communicateWithClient() {
         while (true) {
             writeChunk();
-            phaser.arriveAndAwaitAdvance();
             try {
                 AlloyAtom[][] toBeAdded = (AlloyAtom[][]) input.readObject();
+                System.out.println("Printing Chunk Received to client...Iteration: " + phaser.getPhase());
+                for (int i = 0; i < toBeAdded.length; i++) {
+                    for (int j = 0; j < toBeAdded[0].length; j++) {
+                        System.out.print(toBeAdded[i][j].getCurrentTemp() + " ");
+                    }
+                    System.out.println();
+                }
                 transferToMainBlocks(toBeAdded);
             } catch (IOException | ClassNotFoundException e) {
                 System.out.println("Client Disconnected.");
                 System.exit(-1);
             }
-            iteration++;
+            phaser.arriveAndAwaitAdvance();
         }
     }
 
     private void writeChunk() {
         try {
             AlloyAtom[][] selected;
-            if (iteration % 2 == 0) {
+            if (phaser.getPhase() % 2 == 0) {
                 selected = chunkA;
             } else {
                 selected = chunkB;
+            }
+            System.out.println("Printing Chunk Sent to client...Iteration: " + phaser.getPhase());
+            for (int i = 0; i < chunkA.length; i++) {
+                for (int j = 0; j < chunkA[0].length; j++) {
+                    System.out.print(selected[i][j].getCurrentTemp() + " ");
+                }
+                System.out.println();
             }
             output.writeObject(selected);
             output.flush();
@@ -125,7 +136,7 @@ public class ServerWorker implements Runnable {
     private void transferToMainBlocks(AlloyAtom[][] chunk) {
         AlloyAtom[][] transferTo;
 
-        if (iteration % 2 == 0) {
+        if (phaser.getPhase() % 2 == 0) {
             transferTo = blockB;
         } else {
             transferTo = blockA;
@@ -135,6 +146,7 @@ public class ServerWorker implements Runnable {
         for (int i = startHeight; i < endHeight; i++) {
             int y = 0;
             for (int j = startWidth; j < endWidth; j++) {
+                System.out.println("Added element.");
                 transferTo[i][j].setTemp(chunk[x][y].getCurrentTemp());
                 y++;
             }
