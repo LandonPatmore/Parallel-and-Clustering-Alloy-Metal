@@ -56,8 +56,8 @@ public class ClientWorker implements Runnable {
 
     private void generateChunks() {
         int x = 0;
-        int y = 0;
         for (int i = startHeight; i < endHeight; i++) {
+        int y = 0;
             for (int j = startWidth; j < endWidth; j++) {
                 AlloyAtom a = blockA[i][j];
                 AlloyAtom b = blockB[i][j];
