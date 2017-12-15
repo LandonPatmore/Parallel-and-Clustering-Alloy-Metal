@@ -23,14 +23,12 @@ public class ClientWorker implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println(chunk);
             InputStream input = socket.getInputStream();
             OutputStream output = socket.getOutputStream();
-            long time = System.currentTimeMillis();
-            output.write("Hi there!\n".getBytes());
+            output.write(chunk.toString().getBytes());
             output.close();
             input.close();
-            System.out.println("Request processed: " + time);
+            System.out.println(socket.getInetAddress().getHostName() + " has connected.");
         } catch (IOException e) {
             e.printStackTrace();
         }

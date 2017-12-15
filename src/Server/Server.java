@@ -54,7 +54,7 @@ public class Server {
         }
     }
 
-    void initParams(int iterations, int height, double heatTop, double heatBottom) {
+    private void initParams(int iterations, int height, double heatTop, double heatBottom) {
         blockA = new AlloyAtom[height][height * 2];
         blockB = new AlloyAtom[height][height * 2];
 
@@ -80,7 +80,7 @@ public class Server {
     }
 
     // Works on 4 computers this server, will figure out scaling later
-    void splitIntoChunks() {
+    private void splitIntoChunks() {
         chunks = new Chunk[4];
         int width = height * 2;
 
