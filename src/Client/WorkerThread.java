@@ -1,29 +1,21 @@
 package Client;
 
 import Global.AlloyAtom;
-import Server.Master;
 
-import java.util.concurrent.Phaser;
 import java.util.concurrent.RecursiveAction;
 
 public class WorkerThread extends RecursiveAction {
-    private volatile AlloyAtom[][] blockA = Master.getBlockA();
-    private volatile AlloyAtom[][] blockB = Master.getBlockB();
     private final double[] CONSTANTS = new double[]{0.75, 1.0, 1.25};
-    private final Phaser phaser = Master.getPhaser();
-    private final int iterations = Master.getIterations();
     private int START_HEIGHT;
     private int END_HEIGHT;
     private int START_WIDTH;
     private int END_WIDTH;
-    private final double HEAT_TOP = Master.getHeatTop();
-    private final double HEAT_BOTTOM = Master.getHeatBottom();
 
     WorkerThread() {
         this.START_HEIGHT = 0;
-        this.END_HEIGHT = blockA.length;
+        this.END_HEIGHT = ClientMaster.getChunk().length;
         this.START_WIDTH = 0;
-        this.END_WIDTH = blockA[0].length;
+        this.END_WIDTH = ClientMaster.getChunk()[0].length;
     }
 
     private WorkerThread(int startHeight, int endHeight, int startWidth, int endWidth) {
@@ -45,12 +37,7 @@ public class WorkerThread extends RecursiveAction {
             System.out.println("Splitting workload: " + workLoad);
             splitMatrix();
         } else {
-            for (int i = 0; i < iterations; i++) {
-                phaser.register();
-                heatUp(i);
-                phaser.arriveAndAwaitAdvance();
-                phaser.arriveAndDeregister();
-            }
+            heatUp(0);
         }
     }
 
@@ -67,27 +54,30 @@ public class WorkerThread extends RecursiveAction {
     }
 
     private void heatUp(int iteration) {
-        AlloyAtom[][] workingOn;
-        AlloyAtom[][] transferTo;
-        if (iteration % 2 == 0) {
-            workingOn = blockA;
-            transferTo = blockB;
-        } else {
-            workingOn = blockB;
-            transferTo = blockA;
-        }
+        AlloyAtom[][] workingOn = ClientMaster.getChunk();
+        AlloyAtom[][] transferTo = new AlloyAtom[END_HEIGHT - START_HEIGHT][END_WIDTH - START_WIDTH];
 
-        for (int i = START_HEIGHT; i <= END_HEIGHT - 1; i++) {
-            for (int j = START_WIDTH; j <= END_WIDTH - 1; j++) {
+        for (int i = 0; i <= (END_HEIGHT - START_HEIGHT) - 1; i++) {
+            for (int j = 0; j <= (END_WIDTH - START_WIDTH) - 1; j++) {
                 AlloyAtom atom = workingOn[i][j];
                 if (i == 0 && j == 0) {
-                    transferTo[i][j].setTemp(HEAT_TOP);
+                    transferTo[i][j].setTemp(500);
                 } else if (i == workingOn.length - 1 && j == workingOn[i].length - 1) {
-                    transferTo[i][j].setTemp(HEAT_BOTTOM);
+                    transferTo[i][j].setTemp(500);
                 } else {
                     double temp = algorithm(atom);
                     transferTo[i][j].setTemp(temp);
                 }
+            }
+        }
+
+        transferBack(transferTo);
+    }
+
+    private void transferBack(AlloyAtom[][] chunk) {
+        for (int i = 0; i < (END_HEIGHT - START_HEIGHT) - 1; i++) {
+            for (int j = 0; j < (END_WIDTH - START_WIDTH) - 1; j++) {
+                ClientMaster.getChunk()[i][j].setTemp(chunk[i][j].getCurrentTemp());
             }
         }
     }

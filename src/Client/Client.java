@@ -6,23 +6,25 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.concurrent.ForkJoinPool;
 
 public class Client {
     private Socket socket;
+    private ForkJoinPool f = new ForkJoinPool();
+    private AlloyAtom[][] chunk;
+
+    private ObjectOutputStream output;
+    private ObjectInputStream input;
 
     public Client() {
         openConnection();
         try {
-            ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+            output = new ObjectOutputStream(socket.getOutputStream());
+            input = new ObjectInputStream(socket.getInputStream());
 
-            try {
-                AlloyAtom[][] chunk = (AlloyAtom[][]) input.readObject();
-                chunk[0][0].setTemp(5);
-                output.writeObject(chunk);
-
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+            invokePool();
+            for (int i = 0; i < 2; i++) {
+                setChunk();
             }
 
             output.close();
@@ -33,9 +35,22 @@ public class Client {
         }
     }
 
+    private void setChunk() {
+        try {
+            chunk = (AlloyAtom[][]) input.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void invokePool() {
+        WorkerThread w = new WorkerThread();
+        f.invoke(w);
+    }
+
     private void openConnection() {
         try {
-            socket = new Socket("nuc29.local", 9000);
+            socket = new Socket("localhost", 9000);
         } catch (IOException e) {
             System.out.println("Cannot connect to host.");
             System.exit(-1);

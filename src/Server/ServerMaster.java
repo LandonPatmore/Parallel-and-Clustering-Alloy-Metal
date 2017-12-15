@@ -4,34 +4,22 @@ import Global.AlloyAtom;
 
 import java.util.concurrent.Phaser;
 
-public class Master {
+public class ServerMaster {
     private static AlloyAtom[][] blockA;
     private static AlloyAtom[][] blockB;
     private static Phaser phaser = new Phaser();
-    private static double heatTop;
-    private static double heatBottom;
     private static int iterations;
 
-    private Master() {
+    private ServerMaster() {
     }
 
     public static void setBlocks(AlloyAtom[][] a, AlloyAtom[][] b) {
-        Master.blockA = a;
-        Master.blockB = b;
+        ServerMaster.blockA = a;
+        ServerMaster.blockB = b;
     }
 
-    public static void setParams(int iterations, double heatTop, double heatBottom) {
-        Master.iterations = iterations;
-        Master.heatTop = heatTop;
-        Master.heatBottom = heatBottom;
-    }
-
-    public static double getHeatTop() {
-        return heatTop;
-    }
-
-    public static double getHeatBottom() {
-        return heatBottom;
+    public static void setParams(int iterations) {
+        ServerMaster.iterations = iterations;
     }
 
     public static int getIterations() {

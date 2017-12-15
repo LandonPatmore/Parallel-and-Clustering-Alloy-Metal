@@ -1,4 +1,4 @@
-package Global;
+package Server;
 
 import java.io.Serializable;
 

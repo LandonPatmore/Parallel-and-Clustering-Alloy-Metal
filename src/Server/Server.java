@@ -1,8 +1,11 @@
 package Server;
 
 import Global.AlloyAtom;
-import Global.Area;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -10,9 +13,8 @@ import java.net.Socket;
 public class Server {
 
     private ServerSocket server;
-    private boolean isStopped = false;
     private int port;
-    private int height;
+    private final int height;
     private AlloyAtom[][] blockA;
     private AlloyAtom[][] blockB;
     private Area[] areas;
@@ -20,26 +22,26 @@ public class Server {
     public Server(int port) {
         this.port = port;
         openServerSocket(port);
+        height = 4;
     }
 
     public void startServer() {
+        System.out.println("Server started on port: " + port + "\n");
+
         System.out.println("Creating alloy blocks...");
-        height = 4;
-        initParams(100, height, 100, 100);
+        initParams(100, height);
         System.out.println("Blocks created...");
+
         System.out.println("Splitting into chunks...");
         splitIntoChunks();
         System.out.println("Chunks split...");
+
         int i = 0;
-        while (!isStopped) {
+        while (true) {
             Socket clientSocket;
             try {
                 clientSocket = server.accept();
             } catch (IOException e) {
-                if (isStopped) {
-                    System.out.println("Server Stopped.");
-                    return;
-                }
                 throw new RuntimeException(
                         "Error accepting client connection", e);
             }
@@ -55,11 +57,11 @@ public class Server {
         }
     }
 
-    private void initParams(int iterations, int height, double heatTop, double heatBottom) {
+    private void initParams(int iterations, int height) {
         blockA = new AlloyAtom[height][height * 2];
         blockB = new AlloyAtom[height][height * 2];
 
-        Master.setParams(iterations, heatTop, heatBottom);
+        ServerMaster.setParams(iterations);
 
         for (int i = 0; i < blockA.length; i++) {
             for (int j = 0; j < blockA[i].length; j++) {
@@ -77,7 +79,7 @@ public class Server {
             }
         }
 
-        Master.setBlocks(blockA, blockB);
+        ServerMaster.setBlocks(blockA, blockB);
     }
 
     // Works on 4 computers this server, will figure out scaling later
@@ -92,7 +94,26 @@ public class Server {
         areas[1] = new Area(0, midHeight, midWidth, width);
         areas[2] = new Area(midHeight, height, 0, midWidth);
         areas[3] = new Area(midHeight, height, midWidth, width);
+    }
 
+    private void buildImage() {
+        BufferedImage image = new BufferedImage(blockA.length * 2, blockA.length, BufferedImage.TYPE_4BYTE_ABGR);
+        for (int i = 0; i < blockA.length; i++) {
+            for (int j = 0; j < blockA[i].length; j++) {
+                double temp = blockA[i][j].getCurrentTemp();
+                if (temp > 255) {
+                    temp = 255;
+                }
+                Color c = new Color((float) temp / 255, 0, 0);
+                image.setRGB(j, i, c.getRGB());
+            }
+        }
 
+        File outputfile = new File("image.png");
+        try {
+            ImageIO.write(image, "png", outputfile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
