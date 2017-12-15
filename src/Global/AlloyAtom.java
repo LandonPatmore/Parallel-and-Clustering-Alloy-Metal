@@ -64,11 +64,11 @@ public class AlloyAtom implements Serializable{
         return metals;
     }
 
-    int getX() {
+    public int getX() {
         return x;
     }
 
-    int getY() {
+    public int getY() {
         return y;
     }
 

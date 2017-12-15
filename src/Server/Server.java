@@ -1,6 +1,7 @@
 package Server;
 
 import Global.AlloyAtom;
+import Global.Area;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -14,7 +15,7 @@ public class Server {
     private int height;
     private AlloyAtom[][] blockA;
     private AlloyAtom[][] blockB;
-    private Chunk[] chunks;
+    private Area[] areas;
 
     public Server(int port) {
         this.port = port;
@@ -26,7 +27,7 @@ public class Server {
         height = 100;
         initParams(100, height, 100, 100);
         System.out.println("Blocks created...");
-        System.out.println("Splitting into chunks...");
+        System.out.println("Splitting into areas...");
         splitIntoChunks();
         System.out.println("Chunks split...");
         int i = 0;
@@ -42,7 +43,7 @@ public class Server {
                 throw new RuntimeException(
                         "Error accepting client connection", e);
             }
-            new Thread(new ClientWorker(clientSocket, blockA, blockB, chunks[i++])).start();
+            new Thread(new ClientWorker(clientSocket, blockA, blockB, areas[i++])).start();
         }
     }
 
@@ -81,16 +82,16 @@ public class Server {
 
     // Works on 4 computers this server, will figure out scaling later
     private void splitIntoChunks() {
-        chunks = new Chunk[4];
+        areas = new Area[4];
         int width = height * 2;
 
         int midHeight = (int) Math.floor((height) / 2);
         int midWidth = (int) Math.floor((width) / 2);
 
-        chunks[0] = new Chunk(0, midHeight, 0, midWidth);
-        chunks[1] = new Chunk(0, midHeight, midWidth, width);
-        chunks[2] = new Chunk(midHeight, height, 0, midWidth);
-        chunks[3] = new Chunk(midHeight, height, midWidth, width);
+        areas[0] = new Area(0, midHeight, 0, midWidth);
+        areas[1] = new Area(0, midHeight, midWidth, width);
+        areas[2] = new Area(midHeight, height, 0, midWidth);
+        areas[3] = new Area(midHeight, height, midWidth, width);
 
 
     }
