@@ -38,7 +38,7 @@ public class WorkerThread extends RecursiveAction {
 
         System.out.println(workLoad);
 
-        if (workLoad > 40000) {
+        if (workLoad > 10000) {
             System.out.println("Splitting workload: " + workLoad);
             splitMatrix();
         } else {
@@ -74,8 +74,8 @@ public class WorkerThread extends RecursiveAction {
             transferTo = blockA;
         }
 
-        for (int i = START_HEIGHT; i <= END_HEIGHT - 1; i++) {
-            for (int j = START_WIDTH; j <= END_WIDTH - 1; j++) {
+        for (int i = START_HEIGHT; i < END_HEIGHT; i++) {
+            for (int j = START_WIDTH; j < END_WIDTH; j++) {
                 AlloyAtom atom = workingOn[i][j];
                 if (i == 0 && j == 0) {
                     transferTo[i][j].setTemp(HEAT_TOP);
