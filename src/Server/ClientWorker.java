@@ -55,14 +55,18 @@ public class ClientWorker implements Runnable {
     }
 
     private void generateChunks() {
+        int x = 0;
+        int y = 0;
         for (int i = startHeight; i < endHeight; i++) {
             for (int j = startWidth; j < endWidth; j++) {
                 AlloyAtom a = blockA[i][j];
                 AlloyAtom b = blockB[i][j];
 
-                chunkA[i][j] = new AlloyAtom(a.getX(), a.getY(), a.getMetals());
-                chunkB[i][j] = new AlloyAtom(b.getX(), b.getY(), b.getMetals());
+                chunkA[x][y] = new AlloyAtom(a.getX(), a.getY(), a.getMetals());
+                chunkB[x][y] = new AlloyAtom(b.getX(), b.getY(), b.getMetals());
+                y++;
             }
+            x++;
         }
     }
 
