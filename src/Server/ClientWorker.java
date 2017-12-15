@@ -87,11 +87,15 @@ public class ClientWorker implements Runnable {
             workingOnChunk = chunkB;
             transferTo = blockB;
         }
-
+		
+		int x = 0;
         for (int i = startHeight; i < endHeight; i++) {
+        	int y = 0;
             for (int j = startWidth; j < endWidth; j++) {
-                transferTo[i][j].setTemp(workingOnChunk[i][j].getCurrentTemp());
+                transferTo[i][j].setTemp(workingOnChunk[x][y].getCurrentTemp());
+            	y++;
             }
+            x++;
         }
 
         System.out.println(Arrays.deepToString(blockB));

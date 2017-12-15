@@ -35,7 +35,7 @@ public class Client {
 
     private void openConnection() {
         try {
-            socket = new Socket("localhost", 9000);
+            socket = new Socket("nuc29.local", 9000);
         } catch (IOException e) {
             System.out.println("Cannot connect to host.");
             System.exit(-1);
