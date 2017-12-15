@@ -8,13 +8,15 @@ public class WorkerThread extends RecursiveAction {
     private int END_HEIGHT;
     private int START_WIDTH;
     private int END_WIDTH;
-    private AlloyAtom[][] tempArray;
+    private double[][] temps = ClientMaster.getTemps();
+    private AlloyAtom[][] chunk = ClientMaster.getChunk();
+    private double[][] tempArray;
 
     WorkerThread() {
         this.START_HEIGHT = 0;
-        this.END_HEIGHT = ClientMaster.getChunk().length;
+        this.END_HEIGHT = chunk.length;
         this.START_WIDTH = 0;
-        this.END_WIDTH = ClientMaster.getChunk()[0].length;
+        this.END_WIDTH = chunk[0].length;
     }
 
     private WorkerThread(int startHeight, int endHeight, int startWidth, int endWidth) {
@@ -55,41 +57,30 @@ public class WorkerThread extends RecursiveAction {
     }
 
     private void generateTempArray() {
-        AlloyAtom[][] temp = new AlloyAtom[END_HEIGHT - START_HEIGHT][END_WIDTH - START_WIDTH];
-        for (int i = 0; i < (END_HEIGHT - START_HEIGHT); i++) {
-            for (int j = 0; j < (END_WIDTH - START_WIDTH); j++) {
-                temp[i][j] = new AlloyAtom();
-            }
-        }
-
-        tempArray = temp;
+        tempArray = new double[END_HEIGHT - START_HEIGHT][END_WIDTH - START_WIDTH];
     }
 
     private void heatUp() {
-        AlloyAtom[][] workingOn = ClientMaster.getChunk();
-        AlloyAtom[][] transferTo = tempArray;
-
         for (int i = 0; i < (END_HEIGHT - START_HEIGHT); i++) {
             for (int j = 0; j < (END_WIDTH - START_WIDTH); j++) {
-                AlloyAtom atom = workingOn[i][j];
+                AlloyAtom atom = chunk[i][j];
                 if (atom.getX() == 0 && atom.getY() == 0) {
-                    transferTo[i][j].setTemp(500);
-                } else if (atom.getX() == ClientMaster.getMasterHeight() - 1 && atom.getY() == ClientMaster.getMasterWidth() - 1) {
-                    transferTo[i][j].setTemp(500);
+                    tempArray[i][j] = 500;
+                } else if (atom.getX() == END_HEIGHT - 1 && atom.getY() == END_WIDTH - 1) {
+                    tempArray[i][j] = 500;
                 } else {
                     double temp = algorithm(atom);
-                    transferTo[i][j].setTemp(temp);
+                    tempArray[i][j] = temp;
                 }
             }
         }
-        transferFrom(transferTo);
+        transferFrom(tempArray);
     }
 
-    private void transferFrom(AlloyAtom[][] chunk) {
-        AlloyAtom[][] toBeAdded = chunk;
+    private void transferFrom(double[][] array) {
         for (int i = 0; i < (END_HEIGHT - START_HEIGHT); i++) {
             for (int j = 0; j < (END_WIDTH - START_WIDTH); j++) {
-                ClientMaster.getChunk()[i][j].setTemp(toBeAdded[i][j].getCurrentTemp());
+                ClientMaster.getTemps()[i][j] = array[i][j];
             }
         }
     }
@@ -110,7 +101,7 @@ public class WorkerThread extends RecursiveAction {
         for (int i = 0; i < CONSTANTS.length; i++) {
             double inner = 0.0;
             for (AlloyAtom q : a.getNeighbors()) {
-                double temp = q.getCurrentTemp();
+                double temp = temps[q.getX()][q.getY()];
                 double p = q.getMetals()[i];
 
                 inner += temp * p;

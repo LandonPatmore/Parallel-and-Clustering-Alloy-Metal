@@ -10,8 +10,6 @@ public class ServerWorker implements Runnable {
     private Socket socket;
     private volatile double[][] blockA;
     private volatile double[][] blockB;
-    private volatile double[][] chunkA;
-    private volatile double[][] chunkB;
 
     private final int startHeight;
     private final int endHeight;
@@ -31,8 +29,6 @@ public class ServerWorker implements Runnable {
         this.endHeight = area.getEndHeight();
         this.startWidth = area.getStartWidth();
         this.endWidth = area.getEndWidth();
-        this.chunkA = new double[endHeight - startHeight][endWidth - startWidth];
-        this.chunkB = new double[endHeight - startHeight][endWidth - startWidth];
         this.phaser = phaser;
     }
 
@@ -53,40 +49,41 @@ public class ServerWorker implements Runnable {
     }
 
     private void communicateWithClient() {
-        writeArray();
-        double[][] readArray = new double[endHeight - startHeight][endWidth - startWidth];
-//        System.out.println("\nPrinting Chunk Received from client...Iteration: " + phaser.getPhase());
-//        readArray(readArray);
-//        phaser.arriveAndAwaitAdvance();
+        for (int i = 0; i < 1000; i++) {
+            phaser.arriveAndAwaitAdvance();
+            writeArray();
+            System.out.println("\nPrinting Chunk Received from client...Iteration: " + phaser.getPhase());
+            readArray();
+        }
     }
 
-    private void readArray(double[][] readArray) {
-        for (int i = 0; i < readArray.length; i++) {
-            for (int j = 0; j < readArray[i].length; j++) {
+    private void readArray() {
+        double[][] transfer = new double[endHeight - startHeight][endWidth - startWidth];
+        for (int i = 0; i < transfer.length; i++) {
+            for (int j = 0; j < transfer[i].length; j++) {
                 try {
-                    readArray[i][j] = input.readDouble();
-                    System.out.print(readArray[i][j] + " ");
+                    transfer[i][j] = input.readDouble();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            System.out.println();
         }
 
+        transferToMainBlocks(transfer);
     }
 
     private void writeArray() {
         try {
             double[][] selected;
             if (phaser.getPhase() % 2 == 0) {
-                selected = chunkA;
+                selected = blockA;
             } else {
-                selected = chunkB;
+                selected = blockB;
             }
 
             System.out.println("\nPrinting Chunk Sent to client...Iteration: " + phaser.getPhase());
-            for (int i = 0; i < selected.length; i++) {
-                for (int j = 0; j < selected[0].length; j++) {
+            for (int i = startHeight; i < endHeight; i++) {
+                for (int j = startWidth; j < endWidth; j++) {
                     output.writeDouble(selected[i][j]);
                     System.out.print(selected[i][j] + " ");
                 }
@@ -111,33 +108,34 @@ public class ServerWorker implements Runnable {
     private void writeMasterDimensions() {
         try {
             output.write(blockA.length);
-            output.write(blockB[0].length);
-            output.write(chunkA.length);
-            output.write(chunkA[0].length);
+            output.write(blockA[0].length);
+            output.write(endHeight - startHeight);
+            output.write(endWidth - startWidth);
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-//    private void transferToMainBlocks(AlloyAtom[][] chunk) {
-//        AlloyAtom[][] transferTo;
-//
-//        if (phaser.getPhase() % 2 == 0) {
-//            transferTo = blockB;
-//        } else {
-//            transferTo = blockA;
-//        }
-//
-//        int x = 0;
-//        for (int i = startHeight; i < endHeight; i++) {
-//            int y = 0;
-//            for (int j = startWidth; j < endWidth; j++) {
-//                System.out.println("Added element.");
-//                transferTo[i][j].setTemp(chunk[x][y].getCurrentTemp());
-//                y++;
-//            }
-//            x++;
-//        }
-//    }
+    private void transferToMainBlocks(double[][] chunk) {
+        double[][] transferTo;
+
+        if (phaser.getPhase() % 2 == 0) {
+            transferTo = blockB;
+        } else {
+            transferTo = blockA;
+        }
+
+        int x = 0;
+        for (int i = startHeight; i < endHeight; i++) {
+            int y = 0;
+            for (int j = startWidth; j < endWidth; j++) {
+                transferTo[i][j] = chunk[x][y];
+                y++;
+            }
+            x++;
+        }
+
+        System.out.println();
+    }
 }

@@ -1,5 +1,9 @@
 package Server;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -18,9 +22,9 @@ public class Server {
     public Server(int port) {
         this.port = port;
         openServerSocket(port);
-        height = 4;
+        height = 200;
         phaser = ServerMaster.getPhaser();
-        phaser.bulkRegister(1);
+        phaser.bulkRegister(4);
     }
 
     public void startServer() {
@@ -34,20 +38,22 @@ public class Server {
 
         int i = 0;
         while (true) {
-            Socket clientSocket;
+            Socket clientSocket = null;
             try {
                 clientSocket = server.accept();
-            } catch (IOException e) {
-                throw new RuntimeException(
-                        "Error accepting client connection", e);
+            } catch (IOException | RuntimeException e) {
+                buildImage();
             }
-            new Thread(new ServerWorker(clientSocket, areas[i++], phaser)).start();
+            if (i < 4) {
+                new Thread(new ServerWorker(clientSocket, areas[i++], phaser)).start();
+            }
         }
     }
 
     private void openServerSocket(int port) {
         try {
             server = new ServerSocket(port);
+            server.setSoTimeout(30000);
         } catch (IOException e) {
             throw new RuntimeException("Cannot open port " + port, e);
         }
@@ -74,25 +80,25 @@ public class Server {
         areas[3] = new Area(midHeight - 1, height, midWidth - 1, width);
     }
 
-//    private void buildImage() {
-//        BufferedImage image = new BufferedImage(blockA.length * 2, blockA.length, BufferedImage.TYPE_4BYTE_ABGR);
-//        for (int i = 0; i < blockA.length; i++) {
-//            for (int j = 0; j < blockA[i].length; j++) {
-//                double temp = blockA[i][j].getCurrentTemp();
-//                if (temp > 255) {
-//                    temp = 255;
-//                }
-//                Color c = new Color((float) temp / 255, 0, 0);
-//                image.setRGB(j, i, c.getRGB());
-//            }
-//        }
-//
-//        File outputfile = new File("image.png");
-//        try {
-//            ImageIO.write(image, "png", outputfile);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        System.out.println("Image created.");
-//    }
+    private void buildImage() {
+        BufferedImage image = new BufferedImage(blockA.length * 2, blockA.length, BufferedImage.TYPE_4BYTE_ABGR);
+        for (int i = 0; i < blockA.length; i++) {
+            for (int j = 0; j < blockA[i].length; j++) {
+                double temp = blockA[i][j];
+                if (temp > 255) {
+                    temp = 255;
+                }
+                Color c = new Color((float) temp / 255, 0, 0);
+                image.setRGB(j, i, c.getRGB());
+            }
+        }
+
+        File outputfile = new File("image.png");
+        try {
+            ImageIO.write(image, "png", outputfile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Image created.");
+    }
 }

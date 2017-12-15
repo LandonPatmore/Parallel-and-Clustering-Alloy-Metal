@@ -1,29 +1,21 @@
 package Client;
 
 
-import java.awt.*;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class AlloyAtom {
     private volatile double[] metals;
-    private volatile double currentTemp;
     private int x, y;
     private ArrayList<AlloyAtom> neighbors;
 
     public AlloyAtom(int x, int y) {
         this.metals = setMetalPercentages();
-        this.currentTemp = 0.0;
         this.x = x;
         this.y = y;
     }
 
     public AlloyAtom() {
-    }
-
-    public double getCurrentTemp() {
-        return currentTemp;
     }
 
     private double[] setMetalPercentages() {
@@ -66,59 +58,5 @@ public class AlloyAtom {
 
     public int getY() {
         return y;
-    }
-
-    public void setTemp(double temp) {
-        currentTemp = temp;
-    }
-
-    @Override
-    public String toString() {
-        return new DecimalFormat("").format(currentTemp);
-    }
-
-    Color calc() {
-        double red;
-        double green;
-        double blue;
-
-        if (currentTemp > 10) {
-            red = 255;
-            green = currentTemp;
-            green = 9.4708025861 * Math.log(green) - 16.1195681661;
-
-            if (currentTemp >= 19) {
-                blue = 0;
-            } else {
-                blue = currentTemp - 1;
-                blue = 13.5177312231 * Math.log(blue) - 30.0447927307;
-            }
-        } else {
-            red = currentTemp - 6;
-            red = 60.698727446 * Math.pow(red, -0.1332047592);
-
-            green = currentTemp - 6;
-            green = 60.1221695283 * Math.pow(green, -0.0755148492);
-
-            blue = 255;
-        }
-
-        if (red < 0 || Double.isNaN(red)) {
-            red = 0;
-        } else if (red > 255) {
-            red = 255;
-        }
-        if (green < 0 || Double.isNaN(green)) {
-            green = 0;
-        } else if (green > 255) {
-            green = 255;
-        }
-        if (blue < 0 || Double.isNaN(blue)) {
-            blue = 0;
-        } else if (blue > 255) {
-            blue = 255;
-        }
-
-        return new Color((float) (red / 255), (float) (green / 255), (float) (blue / 255));
     }
 }

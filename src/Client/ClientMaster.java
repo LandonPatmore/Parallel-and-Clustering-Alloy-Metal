@@ -2,6 +2,7 @@ package Client;
 
 public class ClientMaster {
     private static AlloyAtom[][] chunk;
+    private static double[][] temps;
     private static int masterHeight;
     private static int masterWidth;
 
@@ -18,6 +19,14 @@ public class ClientMaster {
 
     public static void setMasterWidth(int masterWidth) {
         ClientMaster.masterWidth = masterWidth;
+    }
+
+    public static double[][] getTemps() {
+        return temps;
+    }
+
+    public static void setTemps(double[][] temps) {
+        ClientMaster.temps = temps;
     }
 
     public static AlloyAtom[][] getChunk() {
