@@ -1,9 +1,12 @@
 package Client;
 
+import Global.AlloyAtom;
+
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class Client {
     private Socket socket;
@@ -12,11 +15,14 @@ public class Client {
         openConnection();
         try {
             OutputStream output = socket.getOutputStream();
-            InputStream input = socket.getInputStream();
+            ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
 
-            String message = new String(input.readAllBytes());
-
-            System.out.println(message);
+            try {
+                AlloyAtom[][] chunk = (AlloyAtom[][])input.readObject();
+                System.out.println(Arrays.deepToString(chunk));
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
 
             output.close();
             input.close();

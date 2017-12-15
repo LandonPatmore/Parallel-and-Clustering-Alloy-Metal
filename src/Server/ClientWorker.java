@@ -5,9 +5,8 @@ import Global.Area;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class ClientWorker implements Runnable {
     private Socket socket;
@@ -34,18 +33,18 @@ public class ClientWorker implements Runnable {
         this.endHeight = area.getEndHeight();
         this.startWidth = area.getStartWidth();
         this.endWidth = area.getEndWidth();
-		this.chunkA = new AlloyAtom[endHeight - startHeight][endWidth - startWidth];
-		this.chunkB = new AlloyAtom[endHeight - startHeight][endWidth - startWidth];
+        this.chunkA = new AlloyAtom[endHeight - startHeight][endWidth - startWidth];
+        this.chunkB = new AlloyAtom[endHeight - startHeight][endWidth - startWidth];
     }
 
     @Override
     public void run() {
         try {
             InputStream input = socket.getInputStream();
-            OutputStream output = socket.getOutputStream();
+            ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
             generateChunks();
 
-            output.write(Arrays.deepToString(chunkA).getBytes());
+            output.writeObject(chunkA);
             output.close();
             input.close();
             System.out.println(socket.getInetAddress().getHostName() + " has connected.");
@@ -57,7 +56,7 @@ public class ClientWorker implements Runnable {
     private void generateChunks() {
         int x = 0;
         for (int i = startHeight; i < endHeight; i++) {
-        int y = 0;
+            int y = 0;
             for (int j = startWidth; j < endWidth; j++) {
                 AlloyAtom a = blockA[i][j];
                 AlloyAtom b = blockB[i][j];
