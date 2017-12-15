@@ -34,6 +34,8 @@ public class ClientWorker implements Runnable {
         this.endHeight = area.getEndHeight();
         this.startWidth = area.getStartWidth();
         this.endWidth = area.getEndWidth();
+		this.chunkA = new AlloyAtom[endHeight - startHeight][endWidth - startWidth];
+		this.chunkB = new AlloyAtom[endHeight - startHeight][endWidth - startWidth];
     }
 
     @Override

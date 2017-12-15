@@ -76,6 +76,11 @@ public class AlloyAtom implements Serializable{
         currentTemp = temp;
     }
 
+	@Override
+	public String toString(){
+		return Double.toString(currentTemp);
+	}
+
     Color calc() {
         double red;
         double green;
