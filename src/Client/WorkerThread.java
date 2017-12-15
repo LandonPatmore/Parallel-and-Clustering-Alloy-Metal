@@ -1,7 +1,5 @@
 package Client;
 
-import Global.AlloyAtom;
-
 import java.util.concurrent.RecursiveAction;
 
 public class WorkerThread extends RecursiveAction {

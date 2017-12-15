@@ -1,7 +1,5 @@
 package Client;
 
-import Global.AlloyAtom;
-
 public class ClientMaster {
     private static AlloyAtom[][] chunk;
     private static int masterHeight;

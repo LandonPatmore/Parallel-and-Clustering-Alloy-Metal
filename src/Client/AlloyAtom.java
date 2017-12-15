@@ -1,13 +1,12 @@
-package Global;
+package Client;
 
 
 import java.awt.*;
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class AlloyAtom implements Serializable{
+public class AlloyAtom {
     private volatile double[] metals;
     private volatile double currentTemp;
     private int x, y;
@@ -20,14 +19,8 @@ public class AlloyAtom implements Serializable{
         this.y = y;
     }
 
-    public AlloyAtom(int x, int y, double[] metals) {
-        this.metals = metals;
-        this.currentTemp = 0.0;
-        this.x = x;
-        this.y = y;
+    public AlloyAtom() {
     }
-
-    public AlloyAtom(){}
 
     public double getCurrentTemp() {
         return currentTemp;
@@ -79,10 +72,10 @@ public class AlloyAtom implements Serializable{
         currentTemp = temp;
     }
 
-	@Override
-	public String toString(){
-		return new DecimalFormat("").format(currentTemp);
-	}
+    @Override
+    public String toString() {
+        return new DecimalFormat("").format(currentTemp);
+    }
 
     Color calc() {
         double red;

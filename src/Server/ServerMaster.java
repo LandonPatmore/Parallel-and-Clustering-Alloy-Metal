@@ -1,40 +1,29 @@
 package Server;
 
-import Global.AlloyAtom;
-
 import java.util.concurrent.Phaser;
 
 public class ServerMaster {
-    private volatile static AlloyAtom[][] blockA;
-    private volatile static AlloyAtom[][] blockB;
+    private volatile static double[][] blockA;
+    private volatile static double[][] blockB;
     private static Phaser phaser = new Phaser();
-    private static int iterations;
 
     private ServerMaster() {
     }
 
-    public static void setBlocks(AlloyAtom[][] a, AlloyAtom[][] b) {
+    public static void setBlocks(double[][] a, double[][] b) {
         ServerMaster.blockA = a;
         ServerMaster.blockB = b;
-    }
-
-    public static void setParams(int iterations) {
-        ServerMaster.iterations = iterations;
-    }
-
-    public static int getIterations() {
-        return iterations;
     }
 
     public static Phaser getPhaser() {
         return phaser;
     }
 
-    public static AlloyAtom[][] getBlockA() {
+    public static double[][] getBlockA() {
         return blockA;
     }
 
-    public static AlloyAtom[][] getBlockB() {
+    public static double[][] getBlockB() {
         return blockB;
     }
 
