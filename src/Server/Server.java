@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.Phaser;
 
 public class Server {
 
@@ -18,11 +19,14 @@ public class Server {
     private AlloyAtom[][] blockA;
     private AlloyAtom[][] blockB;
     private Area[] areas;
+    private Phaser phaser;
 
     public Server(int port) {
         this.port = port;
         openServerSocket(port);
         height = 4;
+        phaser = new Phaser();
+        phaser.bulkRegister(4);
     }
 
     public void startServer() {
@@ -45,7 +49,7 @@ public class Server {
                 throw new RuntimeException(
                         "Error accepting client connection", e);
             }
-            new Thread(new ClientWorker(clientSocket, blockA, blockB, areas[i++])).start();
+            new Thread(new ServerWorker(clientSocket, blockA, blockB, areas[i++], phaser)).start();
         }
     }
 

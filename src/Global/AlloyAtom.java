@@ -3,6 +3,7 @@ package Global;
 
 import java.awt.*;
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -25,6 +26,8 @@ public class AlloyAtom implements Serializable{
         this.x = x;
         this.y = y;
     }
+
+    public AlloyAtom(){}
 
     public double getCurrentTemp() {
         return currentTemp;
@@ -78,7 +81,7 @@ public class AlloyAtom implements Serializable{
 
 	@Override
 	public String toString(){
-		return Double.toString(currentTemp);
+		return new DecimalFormat("").format(currentTemp);
 	}
 
     Color calc() {
@@ -122,7 +125,6 @@ public class AlloyAtom implements Serializable{
         } else if (blue > 255) {
             blue = 255;
         }
-
 
         return new Color((float) (red / 255), (float) (green / 255), (float) (blue / 255));
     }

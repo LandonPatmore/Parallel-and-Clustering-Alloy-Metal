@@ -11,7 +11,6 @@ import java.util.concurrent.ForkJoinPool;
 public class Client {
     private Socket socket;
     private ForkJoinPool f = new ForkJoinPool();
-    private AlloyAtom[][] chunk;
 
     private ObjectOutputStream output;
     private ObjectInputStream input;
@@ -22,10 +21,10 @@ public class Client {
             output = new ObjectOutputStream(socket.getOutputStream());
             input = new ObjectInputStream(socket.getInputStream());
 
+            receiveDimensions();
+            setChunk();
             invokePool();
-            for (int i = 0; i < 2; i++) {
-                setChunk();
-            }
+            sendChunk();
 
             output.close();
             input.close();
@@ -35,10 +34,30 @@ public class Client {
         }
     }
 
+
+
+    private void receiveDimensions(){
+        try {
+            ClientMaster.setMasterHeight(input.read());
+            ClientMaster.setMasterWidth(input.read());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void setChunk() {
         try {
-            chunk = (AlloyAtom[][]) input.readObject();
+            AlloyAtom[][] chunk = (AlloyAtom[][]) input.readObject();
+            ClientMaster.setChunk(chunk);
         } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendChunk(){
+        try {
+            output.writeObject(ClientMaster.getChunk());
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
