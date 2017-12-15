@@ -27,7 +27,7 @@ public class Server {
         height = 100;
         initParams(100, height, 100, 100);
         System.out.println("Blocks created...");
-        System.out.println("Splitting into areas...");
+        System.out.println("Splitting into chunks...");
         splitIntoChunks();
         System.out.println("Chunks split...");
         int i = 0;

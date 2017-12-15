@@ -4,22 +4,23 @@ import Global.AlloyAtom;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.OutputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class Client {
     private Socket socket;
 
-    public Client(){
+    public Client() {
         openConnection();
         try {
-            OutputStream output = socket.getOutputStream();
+            ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
 
             try {
-                AlloyAtom[][] chunk = (AlloyAtom[][])input.readObject();
-                System.out.println(Arrays.deepToString(chunk));
+                AlloyAtom[][] chunk = (AlloyAtom[][]) input.readObject();
+                chunk[0][0].setTemp(5000000);
+                output.writeObject(chunk);
+
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -32,9 +33,9 @@ public class Client {
         }
     }
 
-    private void openConnection(){
+    private void openConnection() {
         try {
-            socket = new Socket("nuc29.local", 9000);
+            socket = new Socket("localhost", 9000);
         } catch (IOException e) {
             System.out.println("Cannot connect to host.");
             System.exit(-1);

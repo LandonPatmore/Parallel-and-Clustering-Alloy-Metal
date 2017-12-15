@@ -4,9 +4,10 @@ import Global.AlloyAtom;
 import Global.Area;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class ClientWorker implements Runnable {
     private Socket socket;
@@ -40,15 +41,21 @@ public class ClientWorker implements Runnable {
     @Override
     public void run() {
         try {
-            InputStream input = socket.getInputStream();
+            ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
             ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
             generateChunks();
-
             output.writeObject(chunkA);
+
+            chunkA = (AlloyAtom[][]) input.readObject();
+
+            transferToMainBlocks();
+
             output.close();
             input.close();
             System.out.println(socket.getInetAddress().getHostName() + " has connected.");
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
@@ -87,6 +94,7 @@ public class ClientWorker implements Runnable {
             }
         }
 
+        System.out.println(Arrays.deepToString(blockB));
     }
 
     private AlloyAtom[][] switchChunk() {
